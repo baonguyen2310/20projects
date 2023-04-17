@@ -62,7 +62,7 @@ async function getQuotes() {
 }
 
 function tweetQuote() {
-    const tweet = `https://twitter.com/intent/tweet?text=${quote.text} - ${quote.author}`;
+    const tweet = `https://twitter.com/intent/tweet?text=${quoteText.textContent} - ${authorText.textContent}`;
     window.open(tweet, '_blank');
 }
 
