@@ -22,6 +22,7 @@ let listArrays = [];
 
 // Drag Functionality
 let draggedItem;
+let isDragging = false;
 let currentColumn;
 
 // Get Arrays from localStorage if available, set default values if not
@@ -60,6 +61,9 @@ function createItemEl(columnEl, column, item, index) {
   columnEl.appendChild(listEl);
   listEl.draggable = true;
   listEl.setAttribute('ondragstart', 'drag(event)');
+  listEl.contentEditable = true;
+  listEl.id = index;
+  listEl.setAttribute('onfocusout', `updateItem(${index}, ${column})`);
 }
 
 // Update Columns in DOM - Reset HTML, Filter Array, Update localStorage
@@ -76,21 +80,37 @@ function updateDOM() {
   // Progress Column
   progressList.textContent = '';
   progressListArray.forEach((progressItem, index) => {
-    createItemEl(progressList, 0, progressItem, index);
+    createItemEl(progressList, 1, progressItem, index);
   });
   // Complete Column
   completeList.textContent = '';
   completeListArray.forEach((completeItem, index) => {
-    createItemEl(completeList, 0, completeItem, index);
+    createItemEl(completeList, 2, completeItem, index);
   });
   // On Hold Column
   onHoldList.textContent = '';
   onHoldListArray.forEach((onHoldItem, index) => {
-    createItemEl(onHoldList, 0, onHoldItem, index);
+    createItemEl(onHoldList, 3, onHoldItem, index);
   });
   // Run getSavedColumns only once, Update Local Storage
   updatedOnLoad = true;
  
+}
+
+function updateItem(id, column) {
+  const selectedArray = listArrays[column];
+  const selectedColumn = listColumns[column].children;
+  const selectedItemText = selectedColumn[id].textContent;
+  if (!isDragging) {
+    if (!selectedItemText) {
+      selectedArray.splice(id, 1);
+    } else {
+      selectedArray[id] = selectedItemText;
+    }
+    console.log(selectedArray);
+    updateSavedColumns();
+    updateDOM();
+  }
 }
 
 function rebuildArrays() {
@@ -116,6 +136,7 @@ function rebuildArrays() {
 // Dung bien toan cuc thay cho dataTransfer
 function drag(event) {
   draggedItem = event.target;
+  isDragging = true;
 }
 
 function allowDrop(event) {
@@ -138,6 +159,7 @@ function drop(event) {
   //const parent = event.target;
   parent.appendChild(draggedItem);
   rebuildArrays();
+  isDragging = false;
 }
 
 // On Load
